@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+*.pdf
+*.mp3
+*.jpg
+*.png
+.vscode/
+venv/
