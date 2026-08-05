@@ -24,3 +24,9 @@ Python, Flask, Groq, SentenceTransformers, PyPDF2, NumPy
 
 POST /ask
 {"question": "What is this document about?"}
+
+## Deployment Note
+
+Requires 1GB+ RAM due to sentence-transformers model size.
+Tested locally and on Render (exceeds 512MB free tier).
+Architecture uses precomputed FAISS index for optimized retrieval.
