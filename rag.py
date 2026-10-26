@@ -5,6 +5,7 @@ from groq import Groq
 import numpy as np
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # Step 1: Extract text from PDF
@@ -17,16 +18,13 @@ def extract_text(pdf_path):
     return text
 
 # Step 2: Split into chunks
-def split_chunks(text, chunk_size=500):
+def split_chunks(text, chunk_size=150, overlap=30):
     words = text.split()
-    chunks = []
-    for i in range(0, len(words), chunk_size):
-        chunk = ' '.join(words[i:i+chunk_size])
-        chunks.append(chunk)
-    return chunks
+    step = chunk_size - overlap
+    return [' '.join(words[i:i+chunk_size]) for i in range(0, len(words), step)]
 
 # Test it
-text = extract_text('Keytruda_1L-metastatisk NSCLC_ kombinasjonsbehandling_rapport 2 av 2_2020.pdf')
+text = extract_text('Small patient groups_final.pdf')
 chunks = split_chunks(text)
 # print(f"Total chunks: {len(chunks)}")
 # print(f"First chunk preview: {chunks[0][:200]}")
@@ -62,9 +60,19 @@ def answer_question(question, chunks, index):
     context = "\n\n".join(relevant_chunks)
     
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-20b",
         messages=[
-            {"role": "system", "content": f"Answer questions based only on this context:\n\n{context}"},
+            {
+    "role": "system",
+    "content": (
+        "Answer the user's question using only the provided context. "
+        "Be concise and answer directly, usually in 1-3 sentences. "
+        "Do not add unrelated details, assumptions, or information "
+        "that is not supported by the context. If the answer is not "
+        "available in the context, say so.\n\n"
+        f"Context:\n{context}"
+    ),
+},
             {"role": "user", "content": question}
         ]
     )
